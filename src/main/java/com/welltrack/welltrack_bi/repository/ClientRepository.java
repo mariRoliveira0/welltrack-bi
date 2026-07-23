@@ -22,4 +22,6 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     // Find client by email
     Client findByEmail(String email);
+
+    public long countByActiveTrue();
 }
