@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WellTrack BI — Sessions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F4; --white: #FFFFFF; --rose: #D4A5A5; --rose-dark: #B8797A;
+      --rose-light: #EDD8D8; --blush: #F7EDED; --sage: #7D9E8C; --sage-light: #EAF2EE;
+      --charcoal: #3A3330; --grey: #9A9490; --sidebar-w: 240px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--charcoal); min-height: 100vh; display: flex; }
+    .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--charcoal); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; padding: 32px 0; }
+    .sidebar-brand { padding: 0 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px; }
+    .sidebar-logo { width: 38px; height: 38px; flex-shrink: 0; }
+    .sidebar-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--white); letter-spacing: 1px; line-height: 1.1; }
+    .sidebar-title span { display: block; font-size: 9px; letter-spacing: 3px; color: var(--rose); text-transform: uppercase; font-family: 'DM Sans', sans-serif; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 24px 0; }
+    .nav-label { font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 24px; margin-bottom: 8px; margin-top: 20px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 24px; color: rgba(255,255,255,0.55); text-decoration: none; font-size: 14px; transition: all 0.2s; border-left: 3px solid transparent; }
+    .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: var(--white); background: rgba(212,165,165,0.12); border-left-color: var(--rose); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 24px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.4); font-size: 14px; cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--rose); }
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+    .topbar { background: var(--white); border-bottom: 1px solid #F0EAEA; padding: 0 36px; height: 68px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-left h1 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--charcoal); }
+    .topbar-left p { font-size: 12px; color: var(--grey); margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .btn { padding: 9px 20px; border-radius: 20px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-rose { background: var(--rose); color: var(--white); box-shadow: 0 4px 14px rgba(212,165,165,0.35); }
+    .btn-rose:hover { background: var(--rose-dark); transform: translateY(-1px); }
+    .btn-ghost { background: var(--blush); color: var(--rose-dark); border: 1px solid var(--rose-light); }
+    .btn-ghost:hover { background: var(--rose-light); }
+    .avatar { width: 36px; height: 36px; background: var(--rose); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 13px; font-weight: 600; }
+    .content { padding: 32px 36px; flex: 1; }
+    .stats-row { display: flex; gap: 16px; margin-bottom: 28px; }
+    .stat-pill { background: var(--white); border: 1px solid #F0EAEA; border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .stat-pill-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .icon-rose { background: var(--blush); } .icon-sage { background: var(--sage-light); } .icon-warm { background: #F5F0EA; }
+    .stat-pill-info p { font-size: 11px; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; }
+    .stat-pill-info strong { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 500; color: var(--charcoal); }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+    .search-wrap { flex: 1; position: relative; }
+    .search-wrap input { width: 100%; padding: 11px 16px 11px 40px; background: var(--white); border: 1.5px solid #F0EAEA; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--charcoal); outline: none; transition: border-color 0.2s; }
+    .search-wrap input:focus { border-color: var(--rose); }
+    .search-wrap input::placeholder { color: #CCC; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+    .table-card { background: var(--white); border-radius: 16px; border: 1px solid #F0EAEA; box-shadow: 0 2px 12px rgba(0,0,0,0.04); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--blush); padding: 13px 20px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--rose-dark); border-bottom: 1px solid var(--rose-light); }
+    tbody tr { border-bottom: 1px solid #FAF4F4; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FDFAFA; }
+    tbody td { padding: 14px 20px; font-size: 14px; color: var(--charcoal); vertical-align: middle; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .badge-group { background: #EAF2EE; color: #4A8A6A; }
+    .badge-private { background: var(--blush); color: var(--rose-dark); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--grey); }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--charcoal); color: var(--white); padding: 12px 20px; border-radius: 12px; font-size: 14px; z-index: 300; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <svg class="sidebar-logo" viewBox="0 0 38 38" fill="none">
+      <rect width="38" height="38" rx="10" fill="rgba(212,165,165,0.2)"/>
+      <text x="19" y="25" text-anchor="middle" font-family="'DM Sans', sans-serif" font-size="13" font-weight="600" fill="#D4A5A5" letter-spacing="1">WT</text>
+    </svg>
+    <div class="sidebar-title">welltrack<span>Business Intelligence</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="clients.html"><span class="nav-icon">👤</span> Clients</a>
+    <a class="nav-item" href="practitioners.html"><span class="nav-icon">🧘</span> Practitioners</a>
+    <a class="nav-item active" href="sessions.html"><span class="nav-icon">📅</span> Sessions</a>
+    <div class="nav-label">Analytics</div>
+    <a class="nav-item" href="analytics.html"><span class="nav-icon">💰</span> Revenue</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Sessions</h1>
+      <p>View and manage all studio sessions</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="loadSessions()">↻ Refresh</button>
+      <div class="avatar">M</div>
+    </div>
+  </header>
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-pill">
+        <div class="stat-pill-icon icon-rose">📅</div>
+        <div class="stat-pill-info"><p>Total Sessions</p><strong id="totalSessions">—</strong></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-icon icon-sage">🧘</div>
+        <div class="stat-pill-info"><p>Group Sessions</p><strong id="groupSessions">—</strong></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-icon icon-warm">👤</div>
+        <div class="stat-pill-info"><p>Private Sessions</p><strong id="privateSessions">—</strong></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search sessions…" oninput="filterSessions()"/>
+      </div>
+      <button class="btn btn-ghost" onclick="loadSessions()">↻ Refresh</button>
+    </div>
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Type</th>
+            <th>Practitioner</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Capacity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody id="sessionsTableBody">
+          <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🌸</div><p>Loading sessions…</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let all = [];
+
+  async function loadSessions() {
+    try {
+      const res = await fetch('/api/sessions');
+      if (!res.ok) throw new Error();
+      all = await res.json();
+      renderTable(all);
+      document.getElementById('totalSessions').textContent = all.length;
+      document.getElementById('groupSessions').textContent = all.filter(s=>(s.sessionType||s.session_type||'').toUpperCase()==='GROUP').length;
+      document.getElementById('privateSessions').textContent = all.filter(s=>(s.sessionType||s.session_type||'').toUpperCase()==='PRIVATE').length;
+    } catch {
+      document.getElementById('sessionsTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load sessions. Is the server running?</p></div></td></tr>`;
+    }
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('sessionsTableBody');
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🌸</div><p>No sessions found.</p></div></td></tr>`; return; }
+    tbody.innerHTML = data.map(s => {
+      const type = (s.sessionType||s.session_type||'').toUpperCase();
+      const prac = s.practitioner ? `${s.practitioner.firstName||s.practitioner.first_name||''} ${s.practitioner.lastName||s.practitioner.last_name||''}`.trim() : '—';
+      const date = s.sessionDate||s.session_date ? new Date(s.sessionDate||s.session_date).toLocaleDateString('en-IE') : '—';
+      const time = s.startTime||s.start_time||'—';
+      return `<tr>
+        <td><strong>${s.name||s.title||'Session #'+s.id}</strong></td>
+        <td><span class="badge ${type==='GROUP'?'badge-group':'badge-private'}">${type||'—'}</span></td>
+        <td>${prac}</td>
+        <td>${date}</td>
+        <td>${time}</td>
+        <td>${s.capacity||'—'}</td>
+        <td>€${s.price||'0'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function filterSessions() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    renderTable(all.filter(s => (s.name||s.title||'').toLowerCase().includes(q) || (s.sessionType||'').toLowerCase().includes(q)));
+  }
+
+  function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+  function logout() { fetch('/api/auth/logout',{method:'POST'}).finally(()=>window.location.href='/login.html'); }
+  loadSessions();
+</script>
+</body>
+</html>
