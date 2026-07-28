@@ -140,11 +140,11 @@
   async function loadAll() {
     try {
       const kpi = await fetch('/api/analytics/kpi').then(r=>r.json());
-      document.getElementById('kpiMrr').textContent   = '€'+(kpi.mrr||kpi.MRR||0).toLocaleString();
-      document.getElementById('kpiRet').textContent   = pct(kpi.retentionRate||kpi.retention_rate||0);
-      document.getElementById('kpiChurn').textContent = pct(kpi.churnRate||kpi.churn_rate||0);
-      document.getElementById('kpiUtil').textContent  = pct(kpi.utilisationRate||kpi.utilisation_rate||0);
-      document.getElementById('kpiGrowth').textContent= pct(kpi.revenueGrowthRate||kpi.revenue_growth_rate||0);
+      document.getElementById('kpiMrr').textContent   = '€'+((kpi.mrr??kpi.MRR??0)).toLocaleString();
+      document.getElementById('kpiRet').textContent   = pct(kpi.retentionRate??kpi.retention_rate??0);
+      document.getElementById('kpiChurn').textContent = pct(kpi.churnRate??kpi.churn_rate??0);
+      document.getElementById('kpiUtil').textContent  = pct(kpi.utilisationRate??kpi.utilisation_rate??0);
+      document.getElementById('kpiGrowth').textContent= pct(kpi.revenueGrowthRate??kpi.revenue_growth_rate??0);
     } catch {}
 
     try {

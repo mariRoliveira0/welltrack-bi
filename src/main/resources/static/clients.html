@@ -447,11 +447,10 @@
     <div class="nav-label">Main</div>
     <a class="nav-item" href="dashboard.html"><span class="nav-icon">📊</span> Dashboard</a>
     <a class="nav-item active" href="clients.html"><span class="nav-icon">👤</span> Clients</a>
-    <a class="nav-item" href="#"><span class="nav-icon">🧘</span> Practitioners</a>
-    <a class="nav-item" href="#"><span class="nav-icon">📅</span> Sessions</a>
+    <a class="nav-item" href="practitioners.html"><span class="nav-icon">🧘</span> Practitioners</a>
+    <a class="nav-item" href="sessions.html"><span class="nav-icon">📅</span> Sessions</a>
     <div class="nav-label">Analytics</div>
-    <a class="nav-item" href="#"><span class="nav-icon">💰</span> Revenue</a>
-    <a class="nav-item" href="#"><span class="nav-icon">📈</span> Growth</a>
+    <a class="nav-item" href="analytics.html"><span class="nav-icon">💰</span> Revenue</a>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">🚪 Sign Out</button>
@@ -538,13 +537,9 @@
     </div>
     <div class="form-grid">
       <input type="hidden" id="clientId"/>
-      <div class="form-group">
-        <label>First Name</label>
-        <input type="text" id="firstName" placeholder="Ana"/>
-      </div>
-      <div class="form-group">
-        <label>Last Name</label>
-        <input type="text" id="lastName" placeholder="Silva"/>
+      <div class="form-group full">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="Ana Silva"/>
       </div>
       <div class="form-group full">
         <label>Email</label>
@@ -598,8 +593,9 @@
     }
 
     tbody.innerHTML = clients.map(c => {
-      const initials = ((c.firstName || c.first_name || '?')[0] + (c.lastName || c.last_name || '?')[0]).toUpperCase();
-      const name     = `${c.firstName || c.first_name || ''} ${c.lastName || c.last_name || ''}`.trim();
+      const name     = c.fullName || c.full_name || '—';
+      const parts    = name.trim().split(' ');
+      const initials = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
       const joined   = c.joinDate || c.join_date ? new Date(c.joinDate || c.join_date).toLocaleDateString('en-IE') : '—';
       const active   = c.active !== false;
 
@@ -640,7 +636,7 @@
   function filterClients() {
     const q = document.getElementById('searchInput').value.toLowerCase();
     const filtered = allClients.filter(c => {
-      const name  = `${c.firstName || c.first_name || ''} ${c.lastName || c.last_name || ''}`.toLowerCase();
+      const name  = (c.fullName || c.full_name || '').toLowerCase();
       const email = (c.email || '').toLowerCase();
       return name.includes(q) || email.includes(q);
     });
@@ -651,8 +647,7 @@
   function openModal(client = null) {
     document.getElementById('modalTitle').textContent = client ? 'Edit Client' : 'Add Client';
     document.getElementById('clientId').value    = client?.id || '';
-    document.getElementById('firstName').value   = client?.firstName || client?.first_name || '';
-    document.getElementById('lastName').value    = client?.lastName  || client?.last_name  || '';
+    document.getElementById('fullName').value    = client?.fullName || client?.full_name || '';
     document.getElementById('email').value       = client?.email || '';
     document.getElementById('phone').value       = client?.phone || '';
     document.getElementById('active').value      = client ? String(client.active !== false) : 'true';
@@ -673,11 +668,10 @@
   async function saveClient() {
     const id = document.getElementById('clientId').value;
     const body = {
-      firstName: document.getElementById('firstName').value,
-      lastName:  document.getElementById('lastName').value,
-      email:     document.getElementById('email').value,
-      phone:     document.getElementById('phone').value,
-      active:    document.getElementById('active').value === 'true',
+      fullName: document.getElementById('fullName').value,
+      email:    document.getElementById('email').value,
+      phone:    document.getElementById('phone').value,
+      active:   document.getElementById('active').value === 'true',
     };
 
     try {
